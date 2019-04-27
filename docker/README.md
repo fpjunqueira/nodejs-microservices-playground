@@ -62,3 +62,8 @@
 
 `docker run -d -p 8080:3000 --name node-container -v "$(pwd):/var/www" -w  "/var/www" node npm start`
  
+ **Build && RUN**
+
+ `docker build -f Dockerfile -t fpjunqueira/service-1 .`
+
+ `docker run -d -p 8080:3000 fpjunqueira/service-1`
