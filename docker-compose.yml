@@ -1,0 +1,77 @@
+version: '3.1'
+
+services: 
+
+  # user service scale up behind nginx
+  user-service:
+    build: 
+      context: ./service-user
+      dockerfile: $pwd/Dockerfile
+    image: fjunqueira/user-service
+    container_name: user-service
+    ports:
+      - "3000" 
+    networks: 
+      - local-network
+    depends_on: 
+      - "mongo"
+  
+  # project service scale up behind nginx
+  project-service:
+    build: 
+      context: ./service-project    
+      dockerfile: $pwd/Dockerfile
+    image: fjunqueira/project-service
+    container_name: project-service
+    ports:
+      - "3000" 
+    networks: 
+      - local-network
+    depends_on: 
+      - "mongo"
+
+  # nginx
+  nginx:
+    build: 
+      context: ./docker/nginx
+      dockerfile: $pwd/Dockerfile      
+    image: fjunqueira/nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    networks: 
+      - local-network
+    depends_on: 
+      - "user-service"  
+  
+  # mongo database 
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1q2w3e
+    networks: 
+      - local-network
+
+  # mongo database client
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: 1q2w3e
+    networks: 
+      - local-network
+    depends_on: 
+      - "mongo"  
+
+networks: 
+  local-network:
+    driver: bridge
